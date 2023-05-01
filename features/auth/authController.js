@@ -1,4 +1,4 @@
-const User = require("./User");
+const User = require("../users/UserModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -88,15 +88,20 @@ exports.login = async (req, res) => {
         id: user.id,
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "30s" }
+      { expiresIn: "15m" }
     );
     if (user.isAdmin) {
+      const now = new Date();
+      await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
       return res.status(200).json({
         msg: "Welcome back, Admin",
         refreshToken,
         accessToken,
       });
     }
+
+    const now = new Date();
+    await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
     return res.status(200).json({
       msg: "Logged in",
       refreshToken,

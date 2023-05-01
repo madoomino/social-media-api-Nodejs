@@ -1,5 +1,6 @@
-const Comment = require("./Comment");
-const User = require("../users/User");
+const Comment = require("./CommentModel");
+const User = require("../users/UserModel");
+// const Post = require("../posts/PostModel"); TODO
 
 exports.createComment = async (req, res) => {
   const { body, parentCommentId } = req.body;
