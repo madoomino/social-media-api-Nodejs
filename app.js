@@ -6,6 +6,8 @@ const authRoute = require("./features/auth/authRoute");
 const { isAuth } = require("./features/auth/isAuthenticatedMiddleware");
 const commentsRoute = require("./features/comments/commentsRoute");
 const postsRoute = require("./features/posts/postsRoute");
+const usersRoute = require("./features/users/usersRoute");
+
 // INITIALIZING APP
 const app = express();
 
@@ -14,13 +16,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-// AUTH ROUTES
+// AUTH ROUTE
 app.use("/api/v1/auth", authRoute);
 
-//COMMENT ROUTE
+// USERS ROUTE
+app.use("/api/v1/users", usersRoute);
+// COMMENTS ROUTE
 app.use("/api/v1/comments", isAuth, commentsRoute);
 
-// POST ROUTES
-// app.use("/api/v1/posts"); TODO
+// POSTS ROUTE
+app.use("/api/v1/posts", isAuth, postsRoute);
 
 module.exports = app;

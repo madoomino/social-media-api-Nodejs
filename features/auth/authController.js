@@ -1,6 +1,7 @@
 const User = require("../users/UserModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { StatusCodes } = require("http-status-codes");
 
 exports.register = async (req, res) => {
   const {
@@ -31,24 +32,20 @@ exports.register = async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "15d" }
     );
-    const strUser = JSON.stringify(user);
-    const parsedUser = JSON.parse(strUser);
-    delete parsedUser.password;
-    delete parsedUser.isAdmin;
-    delete parsedUser.roles;
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    return res.status(201).json({
-      msg: "created",
-      parsedUser,
+
+    const sanitizedUser = {
+      ...user.toObject(),
+      password: undefined,
+      isAdmin: undefined,
+      roles: undefined,
+    };
+
+    return res.status(StatusCodes.CREATED).json({
+      sanitizedUser,
       token,
     });
   } catch (error) {
-    return res.status(500).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });
   }
@@ -58,19 +55,19 @@ exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
     if (!email || !password) {
-      return res.status(302).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         msg: "Please enter email and password",
       });
     }
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(302).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         msg: "Invalid credentials",
       });
     }
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
-      return res.status(302).json({
+      return res.status(StatusCodes.BAD_REQUEST).json({
         msg: "Invalid credentials",
       });
     }
@@ -90,11 +87,19 @@ exports.login = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" }
     );
+
+    const sanitizedUser = {
+      ...user.toObject(),
+      password: undefined,
+      isAdmin: undefined,
+      roles: undefined,
+    };
+
     if (user.isAdmin) {
       const now = new Date();
       await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
-      return res.status(200).json({
-        msg: "Welcome back, Admin",
+      return res.status(StatusCodes.ACCEPTED).json({
+        sanitizedUser,
         refreshToken,
         accessToken,
       });
@@ -102,14 +107,14 @@ exports.login = async (req, res) => {
 
     const now = new Date();
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
-    return res.status(200).json({
-      msg: "Logged in",
+    return res.status(StatusCodes.ACCEPTED).json({
+      sanitizedUser,
       refreshToken,
       accessToken,
     });
   } catch (error) {
-    return res.status(500).json({
-      msg: error.message,
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      msg: error.toString(),
     });
   }
 };

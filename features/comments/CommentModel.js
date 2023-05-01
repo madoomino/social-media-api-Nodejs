@@ -3,13 +3,12 @@ const mongoose = require("mongoose");
 const commentSchema = new mongoose.Schema({
   body: {
     type: String,
-    maxLength: 2000,
+    maxLength: 2048,
     required: true,
   },
   parentComment: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment",
-    required: false,
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
