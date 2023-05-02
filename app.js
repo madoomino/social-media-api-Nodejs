@@ -1,30 +1,21 @@
+const helmet = require("helmet");
 const express = require("express");
-const cookieParser = require("cookie-parser");
-
-// Routes
-const authRoute = require("./features/auth/authRoute");
-const { isAuth } = require("./features/auth/isAuthenticatedMiddleware");
-const commentsRoute = require("./features/comments/commentsRoute");
-const postsRoute = require("./features/posts/postsRoute");
-const usersRoute = require("./features/users/usersRoute");
-
-// INITIALIZING APP
 const app = express();
+const authRoute = require("./src/features/auth/authRoute");
+const usersRoute = require("./src/features/users/usersRoute");
+const postsRoute = require("./src/features/posts/postsRoute");
+const commentsRoute = require("./src/features/comments/commentsRoute");
+const { isAuth } = require("./src/middleware/isAuthenticatedMiddleware");
 
-// APP CONFIGURATIONS
+// CONFIGURATIONS
+app.use(helmet());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
 
-// AUTH ROUTE
+// ROUTES
 app.use("/api/v1/auth", authRoute);
-
-// USERS ROUTE
 app.use("/api/v1/users", usersRoute);
-// COMMENTS ROUTE
-app.use("/api/v1/comments", isAuth, commentsRoute);
-
-// POSTS ROUTE
 app.use("/api/v1/posts", isAuth, postsRoute);
+app.use("/api/v1/comments", isAuth, commentsRoute);
 
 module.exports = app;

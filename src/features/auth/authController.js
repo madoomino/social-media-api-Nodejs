@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      process.env.REFRESH_TOKEN_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "15d" }
     );
 
@@ -41,7 +41,7 @@ exports.register = async (req, res) => {
     };
 
     return res.status(StatusCodes.CREATED).json({
-      sanitizedUser,
+      user: sanitizedUser,
       token,
     });
   } catch (error) {
@@ -71,21 +71,14 @@ exports.login = async (req, res) => {
         msg: "Invalid credentials",
       });
     }
-    const refreshToken = jwt.sign(
+    const token = jwt.sign(
       {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      process.env.REFRESH_TOKEN_SECRET,
+      process.env.JWT_SECRET,
       { expiresIn: "15d" }
-    );
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
     );
 
     const sanitizedUser = {
@@ -98,19 +91,17 @@ exports.login = async (req, res) => {
     if (user.isAdmin) {
       const now = new Date();
       await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
-      return res.status(StatusCodes.ACCEPTED).json({
-        sanitizedUser,
-        refreshToken,
-        accessToken,
+      return res.status(StatusCodes.OK).json({
+        user: sanitizedUser,
+        token,
       });
     }
 
     const now = new Date();
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
-    return res.status(StatusCodes.ACCEPTED).json({
-      sanitizedUser,
-      refreshToken,
-      accessToken,
+    return res.status(StatusCodes.OK).json({
+      user: sanitizedUser,
+      token,
     });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

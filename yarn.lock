@@ -792,10 +792,10 @@
   dependencies:
     "function-bind" "^1.1.1"
 
-"helmet@^6.0.1":
-  "integrity" "sha512-8wo+VdQhTMVBMCITYZaGTbE4lvlthelPYSvoyNvk4RECTmrVjMerp9RfUOQXZWLvCcAn1pKj7ZRxK4lI9Alrcw=="
-  "resolved" "https://registry.npmjs.org/helmet/-/helmet-6.0.1.tgz"
-  "version" "6.0.1"
+"helmet@^6.1.5":
+  "integrity" "sha512-UgAvdoG0BhF9vcCh/j0bWtElo2ZHHk6OzC98NLCM6zK03DEVSM0vUAtT7iR+oTo2Mi6sGelAH3tL6B/uUWxV4g=="
+  "resolved" "https://registry.npmjs.org/helmet/-/helmet-6.1.5.tgz"
+  "version" "6.1.5"
 
 "http-errors@2.0.0":
   "integrity" "sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ=="
