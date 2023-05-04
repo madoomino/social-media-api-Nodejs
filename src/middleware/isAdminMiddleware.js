@@ -1,6 +1,7 @@
 const User = require("../features/users/UserModel");
 const { StatusCodes } = require("http-status-codes");
 
+// TODO
 exports.isAdmin = async (req, res, next) => {
   // # If the request reached here
   //      that means that there's an authenticated user.

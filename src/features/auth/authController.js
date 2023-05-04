@@ -127,15 +127,6 @@ exports.login = async (req, res) => {
       roles: undefined,
     };
 
-    if (user.isAdmin) {
-      const now = new Date();
-      await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
-      return res.status(StatusCodes.OK).json({
-        user: sanitizedUser,
-        accessToken,
-      });
-    }
-
     const now = new Date();
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
     return res.status(StatusCodes.OK).json({
