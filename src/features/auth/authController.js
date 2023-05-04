@@ -23,15 +23,35 @@ exports.register = async (req, res) => {
       address,
       phoneNumber,
     });
-    const token = jwt.sign(
+
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "15d",
+      }
+    );
+
+    const accessToken = jwt.sign(
       {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "15d" }
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15m",
+      }
     );
+
+    await user.updateOne({ refreshToken, accessToken });
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 15,
+    });
 
     const sanitizedUser = {
       ...user.toObject(),
@@ -42,7 +62,7 @@ exports.register = async (req, res) => {
 
     return res.status(StatusCodes.CREATED).json({
       user: sanitizedUser,
-      token,
+      accessToken,
     });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -62,24 +82,43 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        msg: "Invalid credentials",
+        msg: "Invalid user data",
       });
     }
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        msg: "Invalid credentials",
+        msg: "Invalid user data",
       });
     }
-    const token = jwt.sign(
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "15d",
+      }
+    );
+
+    const accessToken = jwt.sign(
       {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "15d" }
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15m",
+      }
     );
+
+    await user.updateOne({ refreshToken, accessToken });
+
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 15,
+    });
 
     const sanitizedUser = {
       ...user.toObject(),
@@ -93,7 +132,7 @@ exports.login = async (req, res) => {
       await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
       return res.status(StatusCodes.OK).json({
         user: sanitizedUser,
-        token,
+        accessToken,
       });
     }
 
@@ -101,11 +140,37 @@ exports.login = async (req, res) => {
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
     return res.status(StatusCodes.OK).json({
       user: sanitizedUser,
-      token,
+      accessToken,
     });
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.toString(),
+    });
+  }
+};
+
+exports.logout = async (req, res) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) {
+    return res.sendStatus(StatusCodes.NO_CONTENT);
+  }
+  const refreshToken = cookies.jwt;
+  try {
+    const user = await User.findOne({ refreshToken });
+    if (!user) {
+      return res.status(StatusCodes.NO_CONTENT);
+    }
+    await user.updateOne({ refreshToken: "", accessToken: "" });
+
+    res.clearCookie("jwt", refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 15,
+    });
+    return res.sendStatus(StatusCodes.NO_CONTENT);
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      msg: error.message,
     });
   }
 };

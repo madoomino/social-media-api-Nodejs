@@ -1,13 +1,8 @@
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
+const User = require("../features/users/UserModel");
 
-function generateToken(username) {
-  return jwt.sign({ username }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "10m",
-  });
-}
-
-exports.isAuth = (req, res, next) => {
+exports.isAuth = async (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -16,7 +11,11 @@ exports.isAuth = (req, res, next) => {
   }
   const token = auth.startsWith("Bearer ") ? auth.split(" ")[1] : false;
   try {
-    jwt.verify(token, process.env.JWT_SECRET, (err) => {
+    const user = await User.findOne({ accessToken: token });
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Unauthorized" });
+    }
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err) => {
       if (err) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
           msg: "Unauthorized",
