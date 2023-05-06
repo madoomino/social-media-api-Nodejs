@@ -4,15 +4,16 @@ const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
 exports.register = async (req, res) => {
-  const {
-    username,
-    password,
-    email,
-    firstName,
-    lastName,
-    address,
-    phoneNumber,
-  } = req.body;
+  // # getting user info from request
+  const { username, password, email, firstName, lastName } = req.body;
+
+  // # missing fields? return missing fields error
+  if (!username || !password || !email || !firstName || !lastName) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      msg: "Missing fields",
+    });
+  }
+  // # no missing fields? create user (only with allowed fields)
   try {
     const user = await User.create({
       username,
@@ -20,10 +21,10 @@ exports.register = async (req, res) => {
       email,
       firstName,
       lastName,
-      address,
-      phoneNumber,
+      address: req.address || undefined,
+      phoneNumber: req.phoneNumber || undefined,
     });
-
+    // - create refresh token adn access token
     const refreshToken = jwt.sign(
       {
         id: user.id,
@@ -46,13 +47,16 @@ exports.register = async (req, res) => {
       }
     );
 
+    // - update db_user_doc with new 2 tokens
     await user.updateOne({ refreshToken, accessToken });
 
+    // - add refresh token as a cookie
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 15,
     });
 
+    // - remove sensitive user data and return new object
     const sanitizedUser = {
       ...user.toObject(),
       password: undefined,
@@ -72,25 +76,36 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
+  // # getting fields from request
   const { email, password } = req.body;
+
+  // - missing fields? return error
+  if (!email || !password) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      msg: "Please enter email and password",
+    });
+  }
   try {
-    if (!email || !password) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        msg: "Please enter email and password",
-      });
-    }
+    // # all fields found? check if user found (by email)
     const user = await User.findOne({ email });
+
+    // - not found? return invalid user error
     if (!user) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         msg: "Invalid user data",
       });
     }
+
+    // # found? check if password is correct
     const isValid = await bcrypt.compare(password, user.password);
+
+    // - not valid? return invalid user data error
     if (!isValid) {
       return res.status(StatusCodes.BAD_REQUEST).json({
         msg: "Invalid user data",
       });
     }
+    // - valid? create refresh token and access token
     const refreshToken = jwt.sign(
       {
         id: user.id,
@@ -113,13 +128,16 @@ exports.login = async (req, res) => {
       }
     );
 
+    // - add 2 tokens to db_user_doc
     await user.updateOne({ refreshToken, accessToken });
 
+    // - add refresh token as a cookie
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 15,
     });
 
+    // - remove sensitive user data
     const sanitizedUser = {
       ...user.toObject(),
       password: undefined,
@@ -127,8 +145,11 @@ exports.login = async (req, res) => {
       roles: undefined,
     };
 
+    // - update db_user_ doc last login time to the request time
     const now = new Date();
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
+
+    // - return user data after sanitizing it
     return res.status(StatusCodes.OK).json({
       user: sanitizedUser,
       accessToken,
@@ -141,11 +162,14 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
+  // # checking if refresh token cookie found?
   const cookies = req.cookies;
 
+  // - not found? do nothing :)
   if (!cookies?.jwt) {
     return res.sendStatus(StatusCodes.NO_CONTENT);
   }
+  // - found? delete it from cookies and db_user_doc
   const refreshToken = cookies.jwt;
   try {
     const user = await User.findOne({ refreshToken });

@@ -16,4 +16,5 @@ async function run(uri) {
   );
 }
 
+// STARTING SERVER
 run(DB_URI);
