@@ -11,9 +11,9 @@ const postSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  image: {
-    type: String,
-    default: "",
+  images: {
+    type: [String],
+    default: [""],
   },
   tags: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],

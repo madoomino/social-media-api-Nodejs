@@ -4,18 +4,19 @@ const { StatusCodes } = require("http-status-codes");
 
 exports.createPost = async (req, res) => {
   const { body, tags, hashtags } = req.body;
-  const {filename} = req.file;
+  const images = req?.files;
 
   if (!body) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       msg: "Missing fields",
     });
   }
+
   try {
     const post = await Post.create({
       body,
       userId: req.userData.id,
-      image: filename || "",
+      images: images.map(image => image.filename) || [],
       tags: tags || undefined,
       hashtags: hashtags || undefined,
     });
