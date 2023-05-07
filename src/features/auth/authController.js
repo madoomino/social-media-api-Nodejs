@@ -143,6 +143,8 @@ exports.login = async (req, res) => {
       password: undefined,
       isAdmin: undefined,
       roles: undefined,
+      refreshToken: undefined,
+      accessToken,
     };
 
     // - update db_user_ doc last login time to the request time
@@ -150,10 +152,7 @@ exports.login = async (req, res) => {
     await User.findByIdAndUpdate(user.id, { lastLoginAt: now });
 
     // - return user data after sanitizing it
-    return res.status(StatusCodes.OK).json({
-      user: sanitizedUser,
-      accessToken,
-    });
+    return res.status(StatusCodes.OK).json(sanitizedUser);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.toString(),

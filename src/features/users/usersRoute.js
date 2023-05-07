@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const { getUserData } = require("./usersController");
-const { isAdmin } = require("../../middleware/isAdminMiddleware");
 
-router.route("/:id").get(isAdmin, getUserData);
+router.route("/:id").get(getUserData);
 
 module.exports = router;
