@@ -3,8 +3,10 @@ const User = require("../users/UserModel");
 const { StatusCodes } = require("http-status-codes");
 
 exports.createPost = async (req, res) => {
-  const { body, userId, image, tags, hashtags } = req.body;
-  if (!body || !userId) {
+  const { body, tags, hashtags } = req.body;
+  const {filename} = req.file;
+
+  if (!body) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       msg: "Missing fields",
     });
@@ -12,14 +14,15 @@ exports.createPost = async (req, res) => {
   try {
     const post = await Post.create({
       body,
-      userId,
+      userId: req.userData.id,
+      image: filename || "",
       tags: tags || undefined,
       hashtags: hashtags || undefined,
     });
     return res.status(StatusCodes.CREATED).json(post);
   } catch (error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      msg: error.message(),
+      msg: error.message,
     });
   }
 };
