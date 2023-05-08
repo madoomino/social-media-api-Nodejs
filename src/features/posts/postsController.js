@@ -4,6 +4,7 @@ const { StatusCodes } = require("http-status-codes");
 
 exports.createPost = async (req, res) => {
   const { body, tags, hashtags } = req.body;
+  // # checking for uploaded images using multer
   const images = req?.files;
 
   if (!body) {
@@ -16,7 +17,8 @@ exports.createPost = async (req, res) => {
     const post = await Post.create({
       body,
       userId: req.userData.id,
-      images: images.map(image => image.filename) || [],
+      // # found images? save their paths , no? save an empty array to db
+      images: images ? images.map((image) => image.filename) : [],
       tags: tags || undefined,
       hashtags: hashtags || undefined,
     });
@@ -30,6 +32,7 @@ exports.createPost = async (req, res) => {
 
 exports.getUserPosts = async (req, res) => {
   const { id } = req.params;
+
   const user = await User.findOne({ _id: id });
   if (!user) {
     return res.status(StatusCodes.BAD_REQUEST).json({

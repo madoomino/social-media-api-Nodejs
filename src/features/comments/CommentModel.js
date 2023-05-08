@@ -6,18 +6,18 @@ const commentSchema = new mongoose.Schema({
     maxLength: 2048,
     required: true,
   },
-  parentComment: {
+  relatedPostId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Post",
+    required: true,
+  },
+  parentCommentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Comment",
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
-  },
-  relatedPost: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Post",
     required: true,
   },
 });

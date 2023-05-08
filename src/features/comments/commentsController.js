@@ -1,18 +1,17 @@
 const Comment = require("./CommentModel");
-const User = require("../users/UserModel");
 const Post = require("../posts/PostModel");
 const { StatusCodes } = require("http-status-codes");
 
 exports.createComment = async (req, res) => {
   const { body, parentCommentId, relatedPostId } = req.body;
+  if (!body) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      msg: "Missing fields",
+    });
+  }
 
   try {
-    if (!body || relatedPostId) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        msg: "No body added",
-      });
-    }
-
+    // finidng parent comment
     if (parentCommentId) {
       const parentComment = await Comment.findById(parentCommentId);
       if (!parentComment) {
@@ -20,13 +19,42 @@ exports.createComment = async (req, res) => {
           msg: "Invalid parent comment id",
         });
       }
+
+      // finding the related post
+      const relatedPost = await Post.findById(parentComment.relatedPostId);
+      if (!relatedPost) {
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          msg: "Invalid post id",
+        });
+      }
+
+      // creating a reply to parentComment
+      const comment = await Comment.create({
+        body,
+        parentCommentId,
+        relatedPostId: parentComment.relatedPostId,
+        userId: req.userData.id,
+      });
+      return res.status(201).json(comment);
     }
 
-    const user = await User.findById(req.userData.id);
+    // if no parentComment
+    if (!relatedPostId) {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        msg: "Missing post id",
+      });
+    }
+    const relatedPost = await Post.findById(relatedPostId);
+    if (!relatedPost) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        msg: "Invalid post id",
+      });
+    }
+
     const comment = await Comment.create({
       body,
-      parentCommentId,
-      userId: user.id,
+      relatedPostId,
+      userId: req.userData.id,
     });
 
     return res.status(201).json(comment);
