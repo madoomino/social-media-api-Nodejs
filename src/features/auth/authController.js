@@ -1,6 +1,4 @@
 const User = require("../users/UserModel");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 
 exports.register = async (req, res) => {
@@ -13,39 +11,33 @@ exports.register = async (req, res) => {
       msg: "Missing fields",
     });
   }
-  // # no missing fields? create user (only with allowed fields)
   try {
+    // # check if req.password is valid
+    const isValidPassword = await User.isValidPassword(password);
+
+    if (!isValidPassword) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        msg: "password should be at least 8 chars, contains (number, capitalized letter, special char).",
+      });
+    }
+
+    // # no missing fields and pwd is valid? create user (only with allowed fields)
     const user = await User.create({
       username,
-      password: await bcrypt.hash(password, 8),
+      password: await User.hashPassword(password),
       email,
       firstName,
       lastName,
       address: req.address || undefined,
       phoneNumber: req.phoneNumber || undefined,
+      /*
+        In this case (req.address || undefined) = (req?.address) = (req.address) = (req.address ?? undefined).
+        I choose the first syntax for more clarity.
+      */
     });
-    // - create refresh token adn access token
-    const refreshToken = jwt.sign(
-      {
-        id: user.id,
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "15d",
-      }
-    );
 
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
+    // - create refresh token and access token
+    const { refreshToken, accessToken } = await user.createTokens();
 
     // - update db_user_doc with new 2 tokens
     await user.updateOne({ refreshToken, accessToken });
@@ -97,7 +89,7 @@ exports.login = async (req, res) => {
     }
 
     // # found? check if password is correct
-    const isValid = await bcrypt.compare(password, user.password);
+    const isValid = await user.comparePasswords(password, user.password);
 
     // - not valid? return invalid user data error
     if (!isValid) {
@@ -106,27 +98,7 @@ exports.login = async (req, res) => {
       });
     }
     // - valid? create refresh token and access token
-    const refreshToken = jwt.sign(
-      {
-        id: user.id,
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "15d",
-      }
-    );
-
-    const accessToken = jwt.sign(
-      {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
+    const { refreshToken, accessToken } = await user.generateTokens();
 
     // - add 2 tokens to db_user_doc
     await user.updateOne({ refreshToken, accessToken });
