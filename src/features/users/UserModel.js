@@ -85,8 +85,7 @@ UserSchema.statics.isValidPassword = function (plainTextPassword) {
 
 // hashes the plain pwd
 UserSchema.statics.hashPassword = async function (plainTextPassword) {
-  const salt = await bcrypt.genSalt(12);
-  const hash = await bcrypt.hash(plainTextPassword, salt);
+  const hash = await bcrypt.hash(plainTextPassword, 8);
   return hash;
 };
 

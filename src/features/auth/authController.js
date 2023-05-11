@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
     });
 
     // - create refresh token and access token
-    const { refreshToken, accessToken } = await user.createTokens();
+    const { refreshToken, accessToken } = await user.generateTokens();
 
     // - update db_user_doc with new 2 tokens
     await user.updateOne({ refreshToken, accessToken });
@@ -159,4 +159,36 @@ exports.logout = async (req, res) => {
       msg: error.message,
     });
   }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if ((!oldPassword, !newPassword)) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      msg: "Missing fields",
+    });
+  }
+
+  const isValidPassword = await User.isValidPassword(newPassword);
+
+  if (!isValidPassword) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      msg: "password should be at least 8 chars, contains (number, capitalized letter, special char).",
+    });
+  }
+
+  try {
+    const user = await User.findById(req.userData.id);
+    const isTheSamePassword = await user.comparePasswords(oldPassword);
+    if (!isTheSamePassword) {
+      return res.sendStatus(StatusCodes.UNAUTHORIZED);
+    }
+
+    const newHashedPassword = await User.hashPassword(newPassword);
+    await user.updateOne({ password: newHashedPassword });
+    return res.status(StatusCodes.OK).json({
+      msg: "Password updated",
+    });
+  } catch (error) {}
 };
