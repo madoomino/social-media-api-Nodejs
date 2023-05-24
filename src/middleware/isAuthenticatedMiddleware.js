@@ -12,6 +12,12 @@ exports.isAuth = async (req, res, next) => {
   }
   // # checking if token is found or return false
   const token = auth.startsWith("Bearer ") ? auth.split(" ")[1] : false;
+
+  if (!token) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      msg: "Unauthorized",
+    });
+  }
   try {
     // # found? check for access token in db_user_doc
     //   - not found or invalid token? return unauthorized
