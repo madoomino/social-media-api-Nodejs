@@ -1,7 +1,7 @@
-const { connect } = require("mongoose");
+import { connect } from "mongoose";
 
 // MongoDB ( obvious -_- )
 
-exports.connectDb = async (uri) => {
+export const connectDB = async (uri: any) => {
   connect(uri).then(() => console.log("CONNECTED DB"));
 };

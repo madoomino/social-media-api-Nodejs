@@ -1,13 +1,13 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const postSchema = new mongoose.Schema({
+const postSchema = new Schema({
   body: {
     type: String,
     max: 4096,
     required: true,
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
@@ -16,7 +16,7 @@ const postSchema = new mongoose.Schema({
     default: [""],
   },
   tags: {
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    type: [{ type: Schema.Types.ObjectId, ref: "User" }],
     default: [],
   },
   hashtags: {
@@ -25,6 +25,6 @@ const postSchema = new mongoose.Schema({
   },
 });
 
-const Post = mongoose.model("Post", postSchema);
+const Post = model("Post", postSchema);
 
-module.exports = Post;
+export default Post;

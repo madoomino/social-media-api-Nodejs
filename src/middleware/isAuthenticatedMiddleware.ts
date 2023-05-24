@@ -1,8 +1,8 @@
-const jwt = require("jsonwebtoken");
-const { StatusCodes } = require("http-status-codes");
-const User = require("../features/users/UserModel");
+import jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
+import User from "../features/users/UserModel";
 
-exports.isAuth = async (req, res, next) => {
+export default async (req: any, res: any, next: any) => {
   // # getting token from auth header
   const auth = req.headers.authorization;
   if (!auth) {
@@ -25,7 +25,7 @@ exports.isAuth = async (req, res, next) => {
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).json({ msg: "Unauthorized" });
     }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err) => {
+    jwt.verify(token, `${process.env.ACCESS_TOKEN_SECRET}`, (err: any) => {
       if (err) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
           msg: "Unauthorized",
@@ -35,7 +35,7 @@ exports.isAuth = async (req, res, next) => {
       req.userData = jwt.decode(token);
     });
     next();
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       msg: error.message,
     });

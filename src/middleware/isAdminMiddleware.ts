@@ -1,8 +1,8 @@
-const User = require("../features/users/UserModel");
-const { StatusCodes } = require("http-status-codes");
+import User from "../features/users/UserModel";
+import { StatusCodes } from "http-status-codes";
 
 // TODO
-exports.isAdmin = async (req, res, next) => {
+exports.isAdmin = async (req: any, res: any, next: any) => {
   // # If the request reached here
   //      that means that there's an authenticated user.
 
@@ -31,7 +31,7 @@ exports.isAdmin = async (req, res, next) => {
 
     // - found? allow user to access route
     next();
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });

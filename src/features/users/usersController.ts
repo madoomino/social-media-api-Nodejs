@@ -1,7 +1,7 @@
-const { StatusCodes } = require("http-status-codes");
-const User = require("../users/UserModel");
+import { StatusCodes } from "http-status-codes";
+import User from "../users/UserModel";
 
-exports.getUserData = async (req, res) => {
+export const getUserData = async (req: any, res: any) => {
   // # checking for id existence in url
   const { id } = req.params;
 
@@ -23,7 +23,7 @@ exports.getUserData = async (req, res) => {
     }
     // - found? return user data
     return res.status(StatusCodes.ACCEPTED).json(user);
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });

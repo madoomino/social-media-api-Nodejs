@@ -1,7 +1,7 @@
 const User = require("../users/UserModel");
 const { StatusCodes } = require("http-status-codes");
 
-exports.register = async (req, res) => {
+export const register = async (req: any, res: any) => {
   // # getting user info from request
   const { username, password, email, firstName, lastName } = req.body;
 
@@ -60,14 +60,14 @@ exports.register = async (req, res) => {
       user: sanitizedUser,
       accessToken,
     });
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req: any, res: any) => {
   // # getting fields from request
   const { email, password } = req.body;
 
@@ -125,14 +125,14 @@ exports.login = async (req, res) => {
 
     // - return user data after sanitizing it
     return res.status(StatusCodes.OK).json(sanitizedUser);
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.toString(),
     });
   }
 };
 
-exports.logout = async (req, res) => {
+export const logout = async (req: any, res: any) => {
   // # checking if refresh token cookie found?
   const cookies = req.cookies;
 
@@ -154,17 +154,17 @@ exports.logout = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 15,
     });
     return res.sendStatus(StatusCodes.NO_CONTENT);
-  } catch (error) {
+  } catch (error: any) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });
   }
 };
 
-exports.resetPassword = async (req, res) => {
+export const resetPassword = async (req: any, res: any) => {
   const { oldPassword, newPassword } = req.body;
 
-  if ((!oldPassword, !newPassword)) {
+  if (!oldPassword || !newPassword) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       msg: "Missing fields",
     });
@@ -190,5 +190,5 @@ exports.resetPassword = async (req, res) => {
     return res.status(StatusCodes.OK).json({
       msg: "Password updated",
     });
-  } catch (error) {}
+  } catch (error: any) {}
 };

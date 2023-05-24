@@ -1,7 +1,7 @@
-const { Schema, model } = require("mongoose");
-const { isEmail } = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { Schema, model } from "mongoose";
+import * as val from "validator";
 
 // Mongoose User Schema
 const UserSchema = new Schema(
@@ -20,7 +20,7 @@ const UserSchema = new Schema(
       required: [true, "Please provide your email"],
       unique: true,
       lowercase: true,
-      validate: [isEmail, "Please provide a valid email"],
+      validate: [val.default.isEmail, "Please provide a valid email"],
     },
     firstName: {
       type: String,
@@ -77,21 +77,23 @@ const UserSchema = new Schema(
 
 // checks if pwd > 8 chars, contains at least one (capitalized letter, number, special char)
 // returns boolean value
-UserSchema.statics.isValidPassword = function (plainTextPassword) {
+UserSchema.statics.isValidPassword = function (plainTextPassword: string) {
   const regEx = /^(?=.*\d)(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
   const isValidPassword = regEx.test(plainTextPassword);
   return isValidPassword;
 };
 
 // hashes the plain pwd
-UserSchema.statics.hashPassword = async function (plainTextPassword) {
+UserSchema.statics.hashPassword = async function (plainTextPassword: string) {
   const hash = await bcrypt.hash(plainTextPassword, 8);
   return hash;
 };
 
 // compares the db_user_pwd wuth the provided login_pwd
 // returns boolean value
-UserSchema.methods.comparePasswords = async function (plainTextPassword) {
+UserSchema.methods.comparePasswords = async function (
+  plainTextPassword: string
+) {
   const userHashedPassword = this.password; // db_user_pwd
 
   const isCorrectPassword = await bcrypt.compare(
@@ -108,7 +110,7 @@ UserSchema.methods.generateTokens = async function () {
     {
       id: user._id,
     },
-    process.env.REFRESH_TOKEN_SECRET,
+    `${process.env.REFRESH_TOKEN_SECRET}`,
     {
       expiresIn: "15d",
     }
@@ -120,7 +122,7 @@ UserSchema.methods.generateTokens = async function () {
       firstName: user.firstName,
       lastName: user.lastName,
     },
-    process.env.ACCESS_TOKEN_SECRET,
+    `${process.env.ACCESS_TOKEN_SECRET}`,
     {
       expiresIn: "15m",
     }
@@ -129,4 +131,6 @@ UserSchema.methods.generateTokens = async function () {
   return { refreshToken, accessToken };
 };
 
-module.exports = model("User", UserSchema);
+const User = model("User", UserSchema);
+
+export default User;

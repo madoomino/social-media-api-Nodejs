@@ -1,8 +1,8 @@
-const Comment = require("./CommentModel");
-const Post = require("../posts/PostModel");
-const { StatusCodes } = require("http-status-codes");
+import Comment from "./CommentModel";
+import Post from "../posts/PostModel";
+import { StatusCodes } from "http-status-codes";
 
-exports.createComment = async (req, res) => {
+export const createComment = async (req: any, res: any) => {
   const { body, parentCommentId, relatedPostId } = req.body;
   if (!body) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -58,7 +58,7 @@ exports.createComment = async (req, res) => {
     });
 
     return res.status(201).json(comment);
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       msg: error.message,
     });

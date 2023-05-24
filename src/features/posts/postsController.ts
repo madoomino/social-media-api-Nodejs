@@ -1,8 +1,8 @@
-const Post = require("./PostModel");
-const User = require("../users/UserModel");
-const { StatusCodes } = require("http-status-codes");
+import Post from "./PostModel";
+import User from "../users/UserModel";
+import { StatusCodes } from "http-status-codes";
 
-exports.createPost = async (req, res) => {
+export const createPost = async (req: any, res: any) => {
   const { body, tags, hashtags } = req.body;
   // # checking for uploaded images using multer
   const images = req?.files;
@@ -18,19 +18,19 @@ exports.createPost = async (req, res) => {
       body,
       userId: req.userData.id,
       // # found images? save their paths , no? save an empty array to db
-      images: images ? images.map((image) => image.filename) : [],
+      images: images ? images.map((image: any) => image.filename) : [],
       tags: tags || undefined,
       hashtags: hashtags || undefined,
     });
     return res.status(StatusCodes.CREATED).json(post);
-  } catch (error) {
+  } catch (error: any) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       msg: error.message,
     });
   }
 };
 
-exports.getUserPosts = async (req, res) => {
+export const getUserPosts = async (req: any, res: any) => {
   const { id } = req.params;
 
   const user = await User.findOne({ _id: id });
@@ -42,7 +42,7 @@ exports.getUserPosts = async (req, res) => {
   try {
     const posts = await Post.find({ userId: id });
     return res.status(StatusCodes.ACCEPTED).json(posts);
-  } catch (error) {
+  } catch (error: any) {
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ msg: error.message });
