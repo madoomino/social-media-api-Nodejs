@@ -164,7 +164,7 @@ exports.logout = async (req, res) => {
 exports.resetPassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
-  if ((!oldPassword, !newPassword)) {
+  if (!oldPassword || !newPassword) {
     return res.status(StatusCodes.BAD_REQUEST).json({
       msg: "Missing fields",
     });
