@@ -7,22 +7,23 @@ Welcome to the social-media-api-Nodejs project! This project is designed to prov
 - User Authentication: Securely register and authenticate users.
 - Post Management: Create, read, update, and delete posts.
 - Comment System: Enable users to comment on posts.
-- User Profile: View and update user profiles (if you are authenticated).
-- Pagination: Efficiently handle large amounts of data with pagination.
+- User Profile: View and update user profiles (requires authentication).
 - Error Handling: Gracefully handle errors and provide meaningful error messages.
 - Security: Implement security measures to protect user data.
 
 ## Todo List
 
+- Completing implementing the CRUD operations for Posts.
 - Like System: Allow users to like and unlike posts.
 - Search Functionality: Search for posts or users based on keywords.
+- Pagination: Efficiently handle large amounts of data with pagination.
 
 ## Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/social-media-api-Nodejs.git
+   git clone https://github.com/madoomino/social-media-api-Nodejs.git
    ```
 
 2. Install the dependencies:
@@ -38,7 +39,7 @@ Welcome to the social-media-api-Nodejs project! This project is designed to prov
 
      ```plaintext
      PORT=
-     MONGO_DATABASE_URL=
+     DB_URI=
      JWT_SECRET=
      ```
 
