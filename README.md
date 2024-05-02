@@ -34,7 +34,7 @@ Welcome to the social-media-api-Nodejs project! This project is designed to prov
 
 3. Set up the environment variables:
 
-   - Create a `.env` file in the root directory.
+   - Create a `.env` file in the src/config directory.
    - Add the following variables:
 
      ```plaintext
