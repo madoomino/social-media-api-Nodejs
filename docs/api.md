@@ -1,3 +1,21 @@
+## API Documentation
+
+### Table of Contents
+- [Auth API Documentation](#auth-api-documentation)
+  - [Register User](#register-user)
+  - [Login User](#login-user)
+  - [Logout User](#logout-user)
+  - [Reset Password](#reset-password)
+- [Users API Documentation](#users-api-documentation)
+  - [Get User Data](#get-user-data)
+- [Comments API Documentation](#comments-api-documentation)
+  - [Create Comment](#create-comment)
+- [Posts API Documentation](#posts-api-documentation)
+  - [Create Post](#create-post)
+  - [Get User Posts](#get-user-posts)
+
+---
+
 ## Auth API Documentation
 
 ### Register User
