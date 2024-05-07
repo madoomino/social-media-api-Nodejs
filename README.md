@@ -2,6 +2,15 @@
 
 Welcome to the social-media-api-Nodejs project! This project is designed to provide a powerful and scalable API for social media applications built with Node.js.
 
+## Table of Contents
+- [Features](#features)
+- [Todo List](#todo-list)
+- [Tech Stack](#tech-stack)
+- [Installation](#installation)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 
 - User Authentication: Securely register and authenticate users.
@@ -17,6 +26,14 @@ Welcome to the social-media-api-Nodejs project! This project is designed to prov
 - Like System: Allow users to like and unlike posts.
 - Search Functionality: Search for posts or users based on keywords.
 - Pagination: Efficiently handle large amounts of data with pagination.
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- MongoDB (with Mongoose)
+- Helmet
+- Cookie-parser
 
 ## Installation
 
@@ -34,7 +51,7 @@ Welcome to the social-media-api-Nodejs project! This project is designed to prov
 
 3. Set up the environment variables:
 
-   - Create a `.env` file in the src/config directory.
+   - Create a `.env` file in the root directory.
    - Add the following variables:
 
      ```plaintext
@@ -59,4 +76,4 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](https://en.wikipedia.org/wiki/MIT_License).
